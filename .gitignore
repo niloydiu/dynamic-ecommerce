@@ -1,0 +1,14 @@
+# Ignore node modules
+node_modules/
+**/node_modules/
+# SQLite DB files
+*.sqlite
+*.sqlite3
+server/dev.sqlite
+# local env
+.env
+.DS_Store
+# build
+dist/
+
+client/node_modules/

@@ -30,5 +30,6 @@ Phase 6: Frontend (Next.js)
 [ ] PLP (Server Components), Dynamic Sidebar, PDP, Interactivity
 
 Notes:
+
 - Phase 1 tasks completed here are file-based scaffolding only. Application code (NestJS/Next.js projects) will be created in later phases.
 - Before any further code generation, this file must be read and updated to mark progress.
