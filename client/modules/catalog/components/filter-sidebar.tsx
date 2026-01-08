@@ -6,7 +6,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
 import { Slider } from "@/components/ui/slider";
 import { ChevronDown, X } from "lucide-react";
-import { useState } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import type { Category } from "../types";
 
 interface FilterSidebarProps {
@@ -28,6 +28,15 @@ export function FilterSidebar({
 }: FilterSidebarProps) {
   const [isOpen, setIsOpen] = useState(true);
   const [localPrice, setLocalPrice] = useState<[number, number]>(priceRange);
+
+  // Keep localPrice in sync when parent priceRange changes, but avoid
+  // replacing with the same array reference to prevent unnecessary renders.
+  useEffect(() => {
+    setLocalPrice((prev) => {
+      if (prev[0] === priceRange[0] && prev[1] === priceRange[1]) return prev;
+      return [priceRange[0], priceRange[1]];
+    });
+  }, [priceRange]);
 
   const hasActiveFilters =
     selectedCategory || priceRange[0] > 0 || priceRange[1] < 1000;
@@ -91,15 +100,25 @@ export function FilterSidebar({
             min={0}
             max={1000}
             step={10}
-            onValueChange={(value) => {
+            onValueChange={useCallback((value: number[]) => {
               const newRange: [number, number] = [value[0], value[1]];
               setLocalPrice((prev) =>
                 prev[0] === newRange[0] && prev[1] === newRange[1]
                   ? prev
                   : newRange
               );
-              onPriceChange?.(newRange);
-            }}
+            }, [])}
+            // Only propagate the final selected range to the parent when the
+            // user finishes adjusting the slider. This avoids frequent writes
+            // into the global store (which trigger fetches) and prevents
+            // maximum update depth issues caused by rapid state churn.
+            onValueCommit={useCallback(
+              (value: number[]) => {
+                const newRange: [number, number] = [value[0], value[1]];
+                onPriceChange?.(newRange);
+              },
+              [onPriceChange]
+            )}
             className="w-full"
           />
           <div className="flex gap-2">

@@ -8,6 +8,9 @@ import { StockBadge } from "@/components/ui/stock-badge"
 import { ProductRating } from "@/components/ui/product-rating"
 import { Heart } from "lucide-react"
 import type { Product } from "../types"
+import { useInventoryStore } from "@/modules/inventory/store"
+import { useEffect } from "react"
+import { useStockInfo } from "@/modules/inventory/hooks"
 
 interface ProductCardProps {
   product: Product
@@ -15,6 +18,16 @@ interface ProductCardProps {
 }
 
 export function ProductCard({ product, onAddToCart }: ProductCardProps) {
+  const stockInfo = useInventoryStore((s) => s.stockInfo[product.id] || null)
+  const inStock = stockInfo ? !!stockInfo.available : product.inStock
+  const stockCount = stockInfo?.stock ?? product.stock
+
+  // Ensure we fetch live stock info for this product so the badge updates
+  const { fetchStockInfo } = useStockInfo(product.id)
+  useEffect(() => {
+    // Fetch once on mount
+    fetchStockInfo().catch(() => {})
+  }, [fetchStockInfo])
   return (
     <Link href={`/catalog/${product.slug}`}>
       <div className="rounded-lg border border-border bg-card overflow-hidden hover:shadow-lg transition-all duration-200 hover:scale-105 group cursor-pointer flex flex-col h-full">
@@ -49,7 +62,7 @@ export function ProductCard({ product, onAddToCart }: ProductCardProps) {
 
           {/* Stock Badge */}
           <div className="absolute bottom-3 left-3">
-            <StockBadge inStock={product.inStock} count={product.stock} variant="compact" />
+            <StockBadge inStock={inStock} count={stockCount} variant="compact" />
           </div>
         </div>
 
@@ -77,14 +90,14 @@ export function ProductCard({ product, onAddToCart }: ProductCardProps) {
             <Button
               size="sm"
               className="w-full"
-              disabled={!product.inStock}
+              disabled={!inStock}
               onClick={(e) => {
                 e.preventDefault()
                 e.stopPropagation()
                 onAddToCart?.(product)
               }}
             >
-              {product.inStock ? "Add to Cart" : "Out of Stock"}
+              {inStock ? "Add to Cart" : "Out of Stock"}
             </Button>
           </div>
         </div>

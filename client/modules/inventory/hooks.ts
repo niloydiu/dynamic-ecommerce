@@ -5,51 +5,56 @@ import { useInventoryStore } from "./store"
 import { getStockInfo as getStockInfoAction, getProductVariants } from "./actions.server"
 
 export function useStockInfo(productId: string) {
-  const store = useInventoryStore()
+  const stockInfo = useInventoryStore((s) => s.stockInfo[productId] || null);
+  const isLoading = useInventoryStore((s) => s.isLoading);
+  const error = useInventoryStore((s) => s.error);
 
   const fetchStockInfo = useCallback(async () => {
-    store.setIsLoading(true)
-    const result = await getStockInfoAction(productId)
+    const store = useInventoryStore.getState();
+    store.setIsLoading(true);
+    const result = await getStockInfoAction(productId);
 
     if (result.error) {
-      store.setError(result.error.message)
+      store.setError(result.error.message);
     } else if (result.data) {
-      store.setStockInfo(productId, result.data)
-      store.setError(null)
+      store.setStockInfo(productId, result.data);
+      store.setError(null);
     }
 
-    store.setIsLoading(false)
-  }, [productId, store])
+    store.setIsLoading(false);
+  }, [productId]);
 
   return {
-    stockInfo: store.getStockInfo(productId),
-    isLoading: store.isLoading,
-    error: store.error,
+    stockInfo,
+    isLoading,
+    error,
     fetchStockInfo,
-  }
+  };
 }
 
 export function useProductVariants(productId: string) {
-  const store = useInventoryStore()
+  const isLoading = useInventoryStore((s) => s.isLoading);
+  const error = useInventoryStore((s) => s.error);
 
   const fetchVariants = useCallback(async () => {
-    store.setIsLoading(true)
-    const result = await getProductVariants(productId)
+    const store = useInventoryStore.getState();
+    store.setIsLoading(true);
+    const result = await getProductVariants(productId);
 
     if (result.error) {
-      store.setError(result.error.message)
-    } else if (result.data) {
-      store.setError(null)
+      store.setError(result.error.message);
+    } else {
+      store.setError(null);
     }
 
-    store.setIsLoading(false)
+    store.setIsLoading(false);
 
-    return result
-  }, [productId, store])
+    return result;
+  }, [productId]);
 
   return {
-    isLoading: store.isLoading,
-    error: store.error,
+    isLoading,
+    error,
     fetchVariants,
-  }
+  };
 }

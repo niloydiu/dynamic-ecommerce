@@ -23,7 +23,7 @@ export default function Home() {
                   <ArrowRight className="ml-2 w-4 h-4" />
                 </Button>
               </Link>
-              <Link href="#featured">
+              <Link href="/catalog?category=new">
                 <Button size="lg" variant="outline" className="w-full sm:w-auto bg-transparent">
                   Browse New Arrivals
                 </Button>

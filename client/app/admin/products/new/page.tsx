@@ -1,12 +1,12 @@
-import { ProductForm } from "@/modules/admin/components/product-form"
-import { Button } from "@/components/ui/button"
-import Link from "next/link"
-import { ChevronLeft } from "lucide-react"
+import { ProductForm } from "@/modules/admin/components/product-form";
+import { Button } from "@/components/ui/button";
+import Link from "next/link";
+import { ChevronLeft } from "lucide-react";
 
 export const metadata = {
   title: "Create Product - Admin - NexusCommerce",
   description: "Create a new product",
-}
+};
 
 export default function NewProductPage() {
   return (
@@ -27,5 +27,5 @@ export default function NewProductPage() {
         <ProductForm redirectTo="/admin/products" />
       </div>
     </div>
-  )
+  );
 }

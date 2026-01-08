@@ -47,21 +47,44 @@ export const useCatalogStore = create<CatalogState>()(
       currentPage: 1,
 
       // Actions
-      setProducts: (products) => set({ products }),
-      setSelectedProduct: (selectedProduct) => set({ selectedProduct }),
-      setIsLoading: (isLoading) => set({ isLoading }),
-      setError: (error) => set({ error }),
+      setProducts: (products) =>
+        set((state) => (state.products === products ? state : { products })),
+      setSelectedProduct: (selectedProduct) =>
+        set((state) =>
+          state.selectedProduct === selectedProduct ? state : { selectedProduct }
+        ),
+      setIsLoading: (isLoading) =>
+        set((state) => (state.isLoading === isLoading ? state : { isLoading })),
+      setError: (error) =>
+        set((state) => (state.error === error ? state : { error })),
       setFilters: (newFilters) =>
-        set((state) => ({
-          filters: { ...state.filters, ...newFilters },
-        })),
-      setCategories: (categories) => set({ categories }),
-      setTotalProducts: (total) => set({ totalProducts: total }),
-      setCurrentPage: (page) => set({ currentPage: page }),
+        set((state) => {
+          const keys = Object.keys(newFilters) as (keyof CatalogFilters)[];
+          const changed = keys.some(
+            (k) => (state.filters as any)[k] !== (newFilters as any)[k]
+          );
+          if (!changed) return state;
+          return {
+            filters: { ...state.filters, ...newFilters },
+          };
+        }),
+      setCategories: (categories) =>
+        set((state) => (state.categories === categories ? state : { categories })),
+      setTotalProducts: (total) =>
+        set((state) => (state.totalProducts === total ? state : { totalProducts: total })),
+      setCurrentPage: (page) =>
+        set((state) => (state.currentPage === page ? state : { currentPage: page })),
       resetFilters: () =>
-        set({
-          filters: defaultFilters,
-          currentPage: 1,
+        set((state) => {
+          if (
+            state.filters === defaultFilters &&
+            state.currentPage === 1
+          )
+            return state;
+          return {
+            filters: defaultFilters,
+            currentPage: 1,
+          };
         }),
     }),
     {

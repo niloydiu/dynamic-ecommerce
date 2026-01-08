@@ -2,7 +2,7 @@
 
 import type { CartItem } from "./types"
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:4000"
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || "http://127.0.0.1:4000"
 
 const MOCK_PRODUCT_STOCK: Record<string, number> = {
   "1": 45,

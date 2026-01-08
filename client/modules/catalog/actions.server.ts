@@ -2,7 +2,7 @@
 
 import type { Product, Category, ProductListResponse, CatalogFilters, CatalogError } from "./types"
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:4000"
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || "http://127.0.0.1:4000"
 
 const MOCK_PRODUCTS: Product[] = [
   {
@@ -262,7 +262,9 @@ async function fetchFromAPI<T>(
 
 // Get all products with filters and pagination
 export async function getProducts(filters: CatalogFilters = {}) {
-  const { category, search, minPrice = 0, maxPrice = 1000, sortBy = "newest", page = 1, limit = 12 } = filters
+  const { category, search, sortBy = "newest", page = 1, limit = 12 } = filters
+  const minPrice = typeof filters.minPrice === "number" ? filters.minPrice : undefined
+  const maxPrice = typeof filters.maxPrice === "number" ? filters.maxPrice : undefined
 
   const apiResult = await fetchFromAPI<ProductListResponse>("/catalog/products")
 
@@ -270,7 +272,16 @@ export async function getProducts(filters: CatalogFilters = {}) {
 
   // Apply client-side filtering if using mock data or for consistency
   if (category) {
-    products = products.filter((p) => p.category === category)
+    // Special virtual categories used by the UI:
+    // - "new": show newest products (no category filter)
+    // - "sale": show products with an originalPrice greater than the current price
+    if (category === "sale") {
+      products = products.filter((p) => p.originalPrice && p.originalPrice > p.price)
+    } else if (category === "new") {
+      // keep all products and rely on sortBy to show newest first
+    } else {
+      products = products.filter((p) => p.category === category)
+    }
   }
 
   if (search) {
@@ -283,7 +294,12 @@ export async function getProducts(filters: CatalogFilters = {}) {
     )
   }
 
-  products = products.filter((p) => p.price >= minPrice && p.price <= maxPrice)
+  // Only apply price filtering when the client explicitly provided bounds.
+  if (typeof minPrice === "number" || typeof maxPrice === "number") {
+    const low = typeof minPrice === "number" ? minPrice : Number.NEGATIVE_INFINITY
+    const high = typeof maxPrice === "number" ? maxPrice : Number.POSITIVE_INFINITY
+    products = products.filter((p) => p.price >= low && p.price <= high)
+  }
 
   // Sort
   switch (sortBy) {
@@ -398,8 +414,26 @@ export async function searchProducts(query: string, limit = 10) {
 
 // Get all categories
 export async function getCategories() {
+  // Try legacy compat route first, then API route, then fallback to mock data.
+  const tryEndpoints = ['/catalog/categories', '/api/catalog/categories']
+  for (const ep of tryEndpoints) {
+    const res = await fetchFromAPI<any[]>(ep)
+    if (res.data) {
+      const categories = res.data.map((c: any) => ({
+        id: c.id,
+        name: c.name,
+        slug: c.slug ?? (typeof c.name === 'string' ? c.name.toLowerCase().replace(/\s+/g, '-') : c.id),
+        description: c.description,
+        image: c.image,
+        productCount: c.productCount ?? undefined,
+      }))
+      return { data: categories }
+    }
+  }
+
   return {
     data: MOCK_CATEGORIES,
+    usedMockData: true,
   }
 }
 

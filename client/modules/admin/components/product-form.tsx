@@ -1,21 +1,21 @@
-"use client"
+"use client";
 
-import type React from "react"
+import type React from "react";
 
-import { useState } from "react"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Textarea } from "@/components/ui/textarea"
-import { Checkbox } from "@/components/ui/checkbox"
-import { ErrorAlert } from "@/components/ui/error-alert"
-import { Loader2 } from "lucide-react"
-import { createProduct } from "../actions.server"
-import type { ProductFormData } from "../types"
+import { useState } from "react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { Checkbox } from "@/components/ui/checkbox";
+import { ErrorAlert } from "@/components/ui/error-alert";
+import { Loader2 } from "lucide-react";
+import { createProduct } from "../actions.server";
+import type { ProductFormData } from "../types";
 
 interface ProductFormProps {
-  onSuccess?: () => void
-  redirectTo?: string
+  onSuccess?: () => void;
+  redirectTo?: string;
 }
 
 export function ProductForm({ onSuccess, redirectTo }: ProductFormProps) {
@@ -28,46 +28,54 @@ export function ProductForm({ onSuccess, redirectTo }: ProductFormProps) {
     image: "",
     inStock: true,
     stock: 0,
-  })
-  const [error, setError] = useState<string | null>(null)
-  const [isLoading, setIsLoading] = useState(false)
+  });
+  const [error, setError] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    const { name, value } = e.target
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+  ) => {
+    const { name, value } = e.target;
     setFormData((prev) => ({
       ...prev,
       [name]: name === "price" || name === "stock" ? Number(value) : value,
-    }))
-  }
+    }));
+  };
 
   const handleCheckChange = (checked: boolean) => {
-    setFormData((prev) => ({ ...prev, inStock: checked }))
-  }
+    setFormData((prev) => ({ ...prev, inStock: checked }));
+  };
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault()
-    setIsLoading(true)
-    setError(null)
+    e.preventDefault();
+    setIsLoading(true);
+    setError(null);
 
-    const result = await createProduct(formData)
+    const result = await createProduct(formData);
 
     if (result.error) {
-      setError(result.error.message)
-      setIsLoading(false)
-      return
+      setError(result.error.message);
+      setIsLoading(false);
+      return;
     }
 
     if (onSuccess) {
-      onSuccess()
+      onSuccess();
     } else if (redirectTo) {
-      window.location.href = redirectTo
+      window.location.href = redirectTo;
     }
-    setIsLoading(false)
-  }
+    setIsLoading(false);
+  };
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6 max-w-2xl">
-      {error && <ErrorAlert title="Error" message={error} onDismiss={() => setError(null)} />}
+      {error && (
+        <ErrorAlert
+          title="Error"
+          message={error}
+          onDismiss={() => setError(null)}
+        />
+      )}
 
       {/* Name & Slug */}
       <div className="grid grid-cols-2 gap-4">
@@ -170,7 +178,12 @@ export function ProductForm({ onSuccess, redirectTo }: ProductFormProps) {
 
       {/* In Stock */}
       <div className="flex items-center gap-2">
-        <Checkbox id="inStock" checked={formData.inStock} onCheckedChange={handleCheckChange} disabled={isLoading} />
+        <Checkbox
+          id="inStock"
+          checked={formData.inStock}
+          onCheckedChange={handleCheckChange}
+          disabled={isLoading}
+        />
         <Label htmlFor="inStock" className="font-normal">
           In Stock
         </Label>
@@ -188,5 +201,5 @@ export function ProductForm({ onSuccess, redirectTo }: ProductFormProps) {
         )}
       </Button>
     </form>
-  )
+  );
 }

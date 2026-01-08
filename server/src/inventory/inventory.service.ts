@@ -13,8 +13,8 @@ export class InventoryService {
   async updateStock(productId: string, newCount: number) {
     const p = await this.productRepo.findOneBy({ id: productId });
     if (!p) throw new Error("Product not found");
-    const prev = p.inventory_count || 0;
-    p.inventory_count = newCount;
+    const prev = p.stock || 0;
+    p.stock = newCount;
     await this.productRepo.save(p);
     // detect 0 -> >0
     if (prev === 0 && newCount > 0) {

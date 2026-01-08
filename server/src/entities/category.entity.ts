@@ -8,6 +8,9 @@ export class Category {
   @Column({ type: "varchar", length: 200 })
   name: string;
 
+  @Column({ type: "varchar", length: 200, nullable: true })
+  slug: string;
+
   @Column({ type: "uuid", nullable: true })
   parent_id?: string;
 
