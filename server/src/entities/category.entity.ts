@@ -11,6 +11,6 @@ export class Category {
   @Column({ type: "uuid", nullable: true })
   parent_id?: string;
 
-    @Column({ type: "simple-json", nullable: false, default: '{}' })
+  @Column({ type: "simple-json", nullable: false, default: "{}" })
   attribute_schema: any;
 }

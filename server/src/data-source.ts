@@ -15,13 +15,27 @@ import { StockRequest } from "./entities/stock-request.entity";
 export let AppDataSource: DataSource | null = null;
 
 export async function initializeDataSource(): Promise<DataSource> {
+  // If developer explicitly requests SQLite, skip attempting Postgres.
+  if (process.env.USE_SQLITE === "true") {
+    const sqliteDs = new DataSource({
+      type: "sqlite",
+      database: process.env.SQLITE_FILE || "dev.sqlite",
+      synchronize: true,
+      logging: false,
+      entities: [Category, Product, Wishlist, Reaction, Comment, StockRequest],
+    });
+    await sqliteDs.initialize();
+    AppDataSource = sqliteDs;
+    return sqliteDs;
+  }
+
   const pgOptions = {
-    type: 'postgres' as const,
-    host: process.env.DB_HOST || 'localhost',
+    type: "postgres" as const,
+    host: process.env.DB_HOST || "localhost",
     port: Number(process.env.DB_PORT || 5432),
-    username: process.env.DB_USER || 'nexus_user',
-    password: process.env.DB_PASS || 'nexus_pass',
-    database: process.env.DB_NAME || 'nexus_db',
+    username: process.env.DB_USER || "nexus_user",
+    password: process.env.DB_PASS || "nexus_pass",
+    database: process.env.DB_NAME || "nexus_db",
     synchronize: true,
     logging: false,
     entities: [Category, Product, Wishlist, Reaction, Comment, StockRequest],
@@ -33,10 +47,13 @@ export async function initializeDataSource(): Promise<DataSource> {
     AppDataSource = pgDataSource;
     return pgDataSource;
   } catch (err) {
-    console.warn('Postgres not available, falling back to SQLite for development:', err && err.message ? err.message : err);
+    console.warn(
+      "Postgres not available, falling back to SQLite for development:",
+      err && err.message ? err.message : err
+    );
     const sqliteDs = new DataSource({
-      type: 'sqlite',
-      database: process.env.SQLITE_FILE || 'dev.sqlite',
+      type: "sqlite",
+      database: process.env.SQLITE_FILE || "dev.sqlite",
       synchronize: true,
       logging: false,
       entities: [Category, Product, Wishlist, Reaction, Comment, StockRequest],

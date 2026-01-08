@@ -17,7 +17,7 @@ export class Product {
   @Column({ type: "int", default: 0 })
   inventory_count: number;
 
-  @Column({ type: "simple-json", nullable: false, default: '{}' })
+  @Column({ type: "simple-json", nullable: false, default: "{}" })
   attributes: any;
 
   @Column({ type: "boolean", default: true })

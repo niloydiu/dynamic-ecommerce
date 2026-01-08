@@ -1,19 +1,24 @@
-import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn } from 'typeorm';
+import {
+  Entity,
+  PrimaryGeneratedColumn,
+  Column,
+  CreateDateColumn,
+} from "typeorm";
 
-@Entity({ name: 'comments' })
+@Entity({ name: "comments" })
 export class Comment {
-  @PrimaryGeneratedColumn('uuid')
+  @PrimaryGeneratedColumn("uuid")
   id: string;
 
-  @Column({ type: 'varchar', length: 200 })
+  @Column({ type: "varchar", length: 200 })
   user_id: string;
 
-  @Column({ type: 'uuid' })
+  @Column({ type: "uuid" })
   product_id: string;
 
-  @Column({ type: 'text' })
+  @Column({ type: "text" })
   text: string;
 
-  @CreateDateColumn({ type: 'datetime' })
+  @CreateDateColumn({ type: "datetime" })
   created_at: Date;
 }

@@ -6,11 +6,11 @@ import { Category } from "../entities/category.entity";
 @Injectable()
 export class CatalogService {
   private get productRepo() {
-    if (!AppDataSource) throw new Error('DataSource not initialized');
+    if (!AppDataSource) throw new Error("DataSource not initialized");
     return AppDataSource.getRepository(Product);
   }
   private get categoryRepo() {
-    if (!AppDataSource) throw new Error('DataSource not initialized');
+    if (!AppDataSource) throw new Error("DataSource not initialized");
     return AppDataSource.getRepository(Category);
   }
 
@@ -28,15 +28,20 @@ export class CatalogService {
     filters?: any;
   }) {
     // If using SQLite (fallback), perform simple find + in-memory filtering
-    if (AppDataSource && AppDataSource.options.type === 'sqlite') {
+    if (AppDataSource && AppDataSource.options.type === "sqlite") {
       let items = await this.productRepo.find({ where: { active: true } });
-      if (opts.categoryId) items = items.filter(i => i.category_id === opts.categoryId);
+      if (opts.categoryId)
+        items = items.filter((i) => i.category_id === opts.categoryId);
       if (opts.search) {
         const q = opts.search.toLowerCase();
-        items = items.filter(i => (i.sku && i.sku.toLowerCase().includes(q)) || JSON.stringify(i.attributes).toLowerCase().includes(q));
+        items = items.filter(
+          (i) =>
+            (i.sku && i.sku.toLowerCase().includes(q)) ||
+            JSON.stringify(i.attributes).toLowerCase().includes(q)
+        );
       }
       if (opts.filters && Object.keys(opts.filters).length) {
-        items = items.filter(i => {
+        items = items.filter((i) => {
           for (const k of Object.keys(opts.filters)) {
             if (i.attributes == null) return false;
             const val = opts.filters[k];
@@ -53,11 +58,17 @@ export class CatalogService {
       return items;
     }
 
-    const qb = this.productRepo.createQueryBuilder('p').where('p.active = true');
-    if (opts.categoryId) qb.andWhere('p.category_id = :cid', { cid: opts.categoryId });
-    if (opts.search) qb.andWhere('LOWER(p.sku) LIKE :q OR LOWER(p.attributes::text) LIKE :q', { q: `%${opts.search.toLowerCase()}%` });
+    const qb = this.productRepo
+      .createQueryBuilder("p")
+      .where("p.active = true");
+    if (opts.categoryId)
+      qb.andWhere("p.category_id = :cid", { cid: opts.categoryId });
+    if (opts.search)
+      qb.andWhere("LOWER(p.sku) LIKE :q OR LOWER(p.attributes::text) LIKE :q", {
+        q: `%${opts.search.toLowerCase()}%`,
+      });
     if (opts.filters && Object.keys(opts.filters).length) {
-      qb.andWhere('p.attributes @> :f', { f: JSON.stringify(opts.filters) });
+      qb.andWhere("p.attributes @> :f", { f: JSON.stringify(opts.filters) });
     }
     return qb.getMany();
   }
