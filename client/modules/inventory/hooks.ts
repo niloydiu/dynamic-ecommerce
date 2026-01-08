@@ -1,8 +1,11 @@
-"use client"
+"use client";
 
-import { useCallback } from "react"
-import { useInventoryStore } from "./store"
-import { getStockInfo as getStockInfoAction, getProductVariants } from "./actions.server"
+import { useCallback } from "react";
+import { useInventoryStore } from "./store";
+import {
+  getStockInfo as getStockInfoAction,
+  getProductVariants,
+} from "./actions.server";
 
 export function useStockInfo(productId: string) {
   const stockInfo = useInventoryStore((s) => s.stockInfo[productId] || null);

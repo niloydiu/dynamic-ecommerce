@@ -1,37 +1,37 @@
-import { create } from "zustand"
-import { persist } from "zustand/middleware"
-import type { CatalogFilters, Product, Category } from "./types"
+import { create } from "zustand";
+import { persist } from "zustand/middleware";
+import type { CatalogFilters, Product, Category } from "./types";
 
 interface CatalogState {
   // Products
-  products: Product[]
-  selectedProduct: Product | null
-  isLoading: boolean
-  error: string | null
+  products: Product[];
+  selectedProduct: Product | null;
+  isLoading: boolean;
+  error: string | null;
 
   // Filters and pagination
-  filters: CatalogFilters
-  categories: Category[]
-  totalProducts: number
-  currentPage: number
+  filters: CatalogFilters;
+  categories: Category[];
+  totalProducts: number;
+  currentPage: number;
 
   // Actions
-  setProducts: (products: Product[]) => void
-  setSelectedProduct: (product: Product | null) => void
-  setIsLoading: (loading: boolean) => void
-  setError: (error: string | null) => void
-  setFilters: (filters: Partial<CatalogFilters>) => void
-  setCategories: (categories: Category[]) => void
-  setTotalProducts: (total: number) => void
-  setCurrentPage: (page: number) => void
-  resetFilters: () => void
+  setProducts: (products: Product[]) => void;
+  setSelectedProduct: (product: Product | null) => void;
+  setIsLoading: (loading: boolean) => void;
+  setError: (error: string | null) => void;
+  setFilters: (filters: Partial<CatalogFilters>) => void;
+  setCategories: (categories: Category[]) => void;
+  setTotalProducts: (total: number) => void;
+  setCurrentPage: (page: number) => void;
+  resetFilters: () => void;
 }
 
 const defaultFilters: CatalogFilters = {
   sortBy: "newest",
   limit: 12,
   page: 1,
-}
+};
 
 export const useCatalogStore = create<CatalogState>()(
   persist(
@@ -51,7 +51,9 @@ export const useCatalogStore = create<CatalogState>()(
         set((state) => (state.products === products ? state : { products })),
       setSelectedProduct: (selectedProduct) =>
         set((state) =>
-          state.selectedProduct === selectedProduct ? state : { selectedProduct }
+          state.selectedProduct === selectedProduct
+            ? state
+            : { selectedProduct }
         ),
       setIsLoading: (isLoading) =>
         set((state) => (state.isLoading === isLoading ? state : { isLoading })),
@@ -69,17 +71,20 @@ export const useCatalogStore = create<CatalogState>()(
           };
         }),
       setCategories: (categories) =>
-        set((state) => (state.categories === categories ? state : { categories })),
+        set((state) =>
+          state.categories === categories ? state : { categories }
+        ),
       setTotalProducts: (total) =>
-        set((state) => (state.totalProducts === total ? state : { totalProducts: total })),
+        set((state) =>
+          state.totalProducts === total ? state : { totalProducts: total }
+        ),
       setCurrentPage: (page) =>
-        set((state) => (state.currentPage === page ? state : { currentPage: page })),
+        set((state) =>
+          state.currentPage === page ? state : { currentPage: page }
+        ),
       resetFilters: () =>
         set((state) => {
-          if (
-            state.filters === defaultFilters &&
-            state.currentPage === 1
-          )
+          if (state.filters === defaultFilters && state.currentPage === 1)
             return state;
           return {
             filters: defaultFilters,
@@ -92,6 +97,6 @@ export const useCatalogStore = create<CatalogState>()(
       partialize: (state) => ({
         filters: state.filters,
       }),
-    },
-  ),
-)
+    }
+  )
+);

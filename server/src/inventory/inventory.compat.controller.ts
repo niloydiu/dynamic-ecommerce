@@ -1,4 +1,12 @@
-import { Controller, Get, Post, Body, Param, NotFoundException, BadRequestException } from "@nestjs/common";
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Param,
+  NotFoundException,
+  BadRequestException,
+} from "@nestjs/common";
 import { InventoryService } from "./inventory.service";
 import { AppDataSource } from "../data-source";
 import { Product } from "../entities/product.entity";
@@ -26,7 +34,7 @@ export class InventoryCompatController {
     const repo = AppDataSource.getRepository(Product);
     const product = await repo.findOneBy({ id: body.productId } as any);
     if (!product) throw new NotFoundException("Product not found");
-    
+
     if (product.stock < body.quantity) {
       throw new BadRequestException("Not enough stock");
     }

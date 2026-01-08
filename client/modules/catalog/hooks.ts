@@ -10,35 +10,40 @@ export function useProducts() {
   const isLoading = useCatalogStore((s) => s.isLoading);
   const error = useCatalogStore((s) => s.error);
 
-  const fetchProducts = useCallback(async (filters?: Partial<CatalogFilters>) => {
-    const state = useCatalogStore.getState();
-    if (state.isLoading) {
-      return;
-    }
-
-    state.setIsLoading(true);
-    state.setError(null);
-
-    const mergedFilters = { ...state.filters, ...filters };
-    const result = await getProducts(mergedFilters);
-
-    if (!result.data) {
-      state.setError("Failed to fetch products");
-      state.setProducts([]);
-    } else {
-      state.setProducts(result.data.products);
-      state.setTotalProducts(result.data.total);
-      state.setCurrentPage(result.data.page);
-
-      const keys = Object.keys(mergedFilters) as (keyof CatalogFilters)[];
-      const different = keys.some((k) => (state.filters as any)[k] !== (mergedFilters as any)[k]);
-      if (different) {
-        state.setFilters(mergedFilters);
+  const fetchProducts = useCallback(
+    async (filters?: Partial<CatalogFilters>) => {
+      const state = useCatalogStore.getState();
+      if (state.isLoading) {
+        return;
       }
-    }
 
-    state.setIsLoading(false);
-  }, []); // Stable: no dependencies
+      state.setIsLoading(true);
+      state.setError(null);
+
+      const mergedFilters = { ...state.filters, ...filters };
+      const result = await getProducts(mergedFilters);
+
+      if (!result.data) {
+        state.setError("Failed to fetch products");
+        state.setProducts([]);
+      } else {
+        state.setProducts(result.data.products);
+        state.setTotalProducts(result.data.total);
+        state.setCurrentPage(result.data.page);
+
+        const keys = Object.keys(mergedFilters) as (keyof CatalogFilters)[];
+        const different = keys.some(
+          (k) => (state.filters as any)[k] !== (mergedFilters as any)[k]
+        );
+        if (different) {
+          state.setFilters(mergedFilters);
+        }
+      }
+
+      state.setIsLoading(false);
+    },
+    []
+  ); // Stable: no dependencies
 
   return {
     products,
@@ -100,30 +105,27 @@ export function useCatalog() {
 }
 
 export function useSearch() {
-  const search = useCallback(
-    async (query: string) => {
-      const store = useCatalogStore.getState();
-      if (!query.trim()) {
-        store.setProducts([]);
-        return;
-      }
+  const search = useCallback(async (query: string) => {
+    const store = useCatalogStore.getState();
+    if (!query.trim()) {
+      store.setProducts([]);
+      return;
+    }
 
-      store.setIsLoading(true);
-      store.setError(null);
+    store.setIsLoading(true);
+    store.setError(null);
 
-      const result = await searchProducts(query);
+    const result = await searchProducts(query);
 
-      if (result.error) {
-        store.setError(result.error.message);
-      } else if (result.data) {
-        store.setProducts(result.data.products);
-        store.setTotalProducts(result.data.total);
-      }
+    if (result.error) {
+      store.setError(result.error.message);
+    } else if (result.data) {
+      store.setProducts(result.data.products);
+      store.setTotalProducts(result.data.total);
+    }
 
-      store.setIsLoading(false);
-    },
-    []
-  );
+    store.setIsLoading(false);
+  }, []);
 
   return { search };
 }

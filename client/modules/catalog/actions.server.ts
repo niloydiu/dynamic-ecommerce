@@ -1,15 +1,23 @@
-"use server"
+"use server";
 
-import type { Product, Category, ProductListResponse, CatalogFilters, CatalogError } from "./types"
+import type {
+  Product,
+  Category,
+  ProductListResponse,
+  CatalogFilters,
+  CatalogError,
+} from "./types";
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || "http://127.0.0.1:4000"
+const API_BASE_URL =
+  process.env.NEXT_PUBLIC_API_BASE_URL || "http://127.0.0.1:4000";
 
 const MOCK_PRODUCTS: Product[] = [
   {
     id: "1",
     name: "Premium Wireless Headphones",
     slug: "premium-wireless-headphones",
-    description: "High-quality wireless headphones with noise cancellation and 30-hour battery life.",
+    description:
+      "High-quality wireless headphones with noise cancellation and 30-hour battery life.",
     price: 199.99,
     originalPrice: 249.99,
     image: "/wireless-headphones.jpg",
@@ -24,7 +32,8 @@ const MOCK_PRODUCTS: Product[] = [
     id: "2",
     name: "Ergonomic Office Chair",
     slug: "ergonomic-office-chair",
-    description: "Comfortable and stylish office chair with adjustable lumbar support and breathable mesh.",
+    description:
+      "Comfortable and stylish office chair with adjustable lumbar support and breathable mesh.",
     price: 349.99,
     image: "/office-chair.jpg",
     category: "furniture",
@@ -38,7 +47,8 @@ const MOCK_PRODUCTS: Product[] = [
     id: "3",
     name: "4K Portable Monitor",
     slug: "4k-portable-monitor",
-    description: "Ultra-thin 4K monitor perfect for professionals and remote workers. 15.6-inch display.",
+    description:
+      "Ultra-thin 4K monitor perfect for professionals and remote workers. 15.6-inch display.",
     price: 449.99,
     originalPrice: 549.99,
     image: "/portable-monitor.jpg",
@@ -53,7 +63,8 @@ const MOCK_PRODUCTS: Product[] = [
     id: "4",
     name: "Mechanical Keyboard",
     slug: "mechanical-keyboard",
-    description: "RGB mechanical keyboard with custom switches and customizable macros.",
+    description:
+      "RGB mechanical keyboard with custom switches and customizable macros.",
     price: 149.99,
     image: "/mechanical-keyboard.png",
     category: "electronics",
@@ -67,7 +78,8 @@ const MOCK_PRODUCTS: Product[] = [
     id: "5",
     name: "Smartphone Stand",
     slug: "smartphone-stand",
-    description: "Adjustable aluminum smartphone stand compatible with all devices.",
+    description:
+      "Adjustable aluminum smartphone stand compatible with all devices.",
     price: 29.99,
     image: "/minimalist-wooden-phone-stand.png",
     category: "accessories",
@@ -81,7 +93,8 @@ const MOCK_PRODUCTS: Product[] = [
     id: "6",
     name: "Wireless Mouse",
     slug: "wireless-mouse",
-    description: "Precision wireless mouse with ergonomic design and fast charging.",
+    description:
+      "Precision wireless mouse with ergonomic design and fast charging.",
     price: 79.99,
     originalPrice: 99.99,
     image: "/wireless-mouse.jpg",
@@ -96,7 +109,8 @@ const MOCK_PRODUCTS: Product[] = [
     id: "7",
     name: "Desk Lamp Pro",
     slug: "desk-lamp-pro",
-    description: "LED desk lamp with adjustable brightness and color temperature.",
+    description:
+      "LED desk lamp with adjustable brightness and color temperature.",
     price: 89.99,
     image: "/desk-lamp.jpg",
     category: "lighting",
@@ -152,7 +166,8 @@ const MOCK_PRODUCTS: Product[] = [
     id: "11",
     name: "Noise-Canceling Earbuds",
     slug: "noise-canceling-earbuds",
-    description: "Compact earbuds with active noise cancellation and 8-hour battery.",
+    description:
+      "Compact earbuds with active noise cancellation and 8-hour battery.",
     price: 129.99,
     originalPrice: 179.99,
     image: "/wireless-mouse.jpg",
@@ -167,7 +182,8 @@ const MOCK_PRODUCTS: Product[] = [
     id: "12",
     name: "Desk Organizer",
     slug: "desk-organizer",
-    description: "Multi-compartment desk organizer for better workspace organization.",
+    description:
+      "Multi-compartment desk organizer for better workspace organization.",
     price: 39.99,
     image: "/desk-organizer.jpg",
     category: "office",
@@ -177,7 +193,7 @@ const MOCK_PRODUCTS: Product[] = [
     reviewCount: 82,
     tags: ["office", "organizer", "desk"],
   },
-]
+];
 
 const MOCK_CATEGORIES: Category[] = [
   {
@@ -215,15 +231,15 @@ const MOCK_CATEGORIES: Category[] = [
     description: "Office supplies and organizers",
     productCount: 1,
   },
-]
+];
 
 async function fetchFromAPI<T>(
   endpoint: string,
-  options?: RequestInit,
+  options?: RequestInit
 ): Promise<{ data?: T; error?: CatalogError; usedMockData?: boolean }> {
   try {
-    const controller = new AbortController()
-    const timeoutId = setTimeout(() => controller.abort(), 5000) // 5 second timeout
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 5000); // 5 second timeout
 
     const response = await fetch(`${API_BASE_URL}${endpoint}`, {
       headers: {
@@ -232,43 +248,48 @@ async function fetchFromAPI<T>(
       },
       signal: controller.signal,
       ...options,
-    })
+    });
 
-    clearTimeout(timeoutId)
+    clearTimeout(timeoutId);
 
     if (!response.ok) {
-      const error = await response.json()
+      const error = await response.json();
       return {
         error: {
           code: error.code || "UNKNOWN_ERROR",
           message: error.message || "An error occurred while fetching data",
         },
-      }
+      };
     }
 
-    const data = await response.json()
-    return { data }
+    const data = await response.json();
+    return { data };
   } catch (error) {
-    console.error(`[v0] API Error at ${endpoint}:`, error)
+    console.error(`[v0] API Error at ${endpoint}:`, error);
     return {
       error: {
         code: "NETWORK_ERROR",
-        message: "Using mock data - Backend server is not available. Connect a backend to see real data.",
+        message:
+          "Using mock data - Backend server is not available. Connect a backend to see real data.",
       },
       usedMockData: true,
-    }
+    };
   }
 }
 
 // Get all products with filters and pagination
 export async function getProducts(filters: CatalogFilters = {}) {
-  const { category, search, sortBy = "newest", page = 1, limit = 12 } = filters
-  const minPrice = typeof filters.minPrice === "number" ? filters.minPrice : undefined
-  const maxPrice = typeof filters.maxPrice === "number" ? filters.maxPrice : undefined
+  const { category, search, sortBy = "newest", page = 1, limit = 12 } = filters;
+  const minPrice =
+    typeof filters.minPrice === "number" ? filters.minPrice : undefined;
+  const maxPrice =
+    typeof filters.maxPrice === "number" ? filters.maxPrice : undefined;
 
-  const apiResult = await fetchFromAPI<ProductListResponse>("/catalog/products")
+  const apiResult = await fetchFromAPI<ProductListResponse>(
+    "/catalog/products"
+  );
 
-  let products = apiResult.data?.products || MOCK_PRODUCTS
+  let products = apiResult.data?.products || MOCK_PRODUCTS;
 
   // Apply client-side filtering if using mock data or for consistency
   if (category) {
@@ -276,51 +297,55 @@ export async function getProducts(filters: CatalogFilters = {}) {
     // - "new": show newest products (no category filter)
     // - "sale": show products with an originalPrice greater than the current price
     if (category === "sale") {
-      products = products.filter((p) => p.originalPrice && p.originalPrice > p.price)
+      products = products.filter(
+        (p) => p.originalPrice && p.originalPrice > p.price
+      );
     } else if (category === "new") {
       // keep all products and rely on sortBy to show newest first
     } else {
-      products = products.filter((p) => p.category === category)
+      products = products.filter((p) => p.category === category);
     }
   }
 
   if (search) {
-    const query = search.toLowerCase()
+    const query = search.toLowerCase();
     products = products.filter(
       (p) =>
         p.name.toLowerCase().includes(query) ||
         p.description.toLowerCase().includes(query) ||
-        p.tags?.some((tag) => tag.toLowerCase().includes(query)),
-    )
+        p.tags?.some((tag) => tag.toLowerCase().includes(query))
+    );
   }
 
   // Only apply price filtering when the client explicitly provided bounds.
   if (typeof minPrice === "number" || typeof maxPrice === "number") {
-    const low = typeof minPrice === "number" ? minPrice : Number.NEGATIVE_INFINITY
-    const high = typeof maxPrice === "number" ? maxPrice : Number.POSITIVE_INFINITY
-    products = products.filter((p) => p.price >= low && p.price <= high)
+    const low =
+      typeof minPrice === "number" ? minPrice : Number.NEGATIVE_INFINITY;
+    const high =
+      typeof maxPrice === "number" ? maxPrice : Number.POSITIVE_INFINITY;
+    products = products.filter((p) => p.price >= low && p.price <= high);
   }
 
   // Sort
   switch (sortBy) {
     case "price-low":
-      products.sort((a, b) => a.price - b.price)
-      break
+      products.sort((a, b) => a.price - b.price);
+      break;
     case "price-high":
-      products.sort((a, b) => b.price - a.price)
-      break
+      products.sort((a, b) => b.price - a.price);
+      break;
     case "popular":
-      products.sort((a, b) => (b.rating || 0) - (a.rating || 0))
-      break
+      products.sort((a, b) => (b.rating || 0) - (a.rating || 0));
+      break;
     case "newest":
     default:
-      products.reverse()
+      products.reverse();
   }
 
   // Paginate
-  const total = products.length
-  const startIndex = (page - 1) * limit
-  const paginatedProducts = products.slice(startIndex, startIndex + limit)
+  const total = products.length;
+  const startIndex = (page - 1) * limit;
+  const paginatedProducts = products.slice(startIndex, startIndex + limit);
 
   return {
     data: {
@@ -331,7 +356,7 @@ export async function getProducts(filters: CatalogFilters = {}) {
       hasMore: startIndex + limit < total,
     },
     usedMockData: apiResult.usedMockData,
-  }
+  };
 }
 
 // Get single product by slug
@@ -342,20 +367,20 @@ export async function getProductBySlug(slug: string) {
         code: "INVALID_INPUT",
         message: "Product slug is required",
       },
-    }
+    };
   }
 
-  const apiResult = await fetchFromAPI<Product>(`/catalog/products/${slug}`)
+  const apiResult = await fetchFromAPI<Product>(`/catalog/products/${slug}`);
 
   if (apiResult.usedMockData) {
-    const mockProduct = MOCK_PRODUCTS.find((p) => p.slug === slug)
+    const mockProduct = MOCK_PRODUCTS.find((p) => p.slug === slug);
     return {
       data: mockProduct,
       usedMockData: true,
-    }
+    };
   }
 
-  return apiResult
+  return apiResult;
 }
 
 // Get single product by ID
@@ -366,20 +391,20 @@ export async function getProductById(id: string) {
         code: "INVALID_INPUT",
         message: "Product ID is required",
       },
-    }
+    };
   }
 
-  const apiResult = await fetchFromAPI<Product>(`/catalog/products/id/${id}`)
+  const apiResult = await fetchFromAPI<Product>(`/catalog/products/id/${id}`);
 
   if (apiResult.usedMockData) {
-    const mockProduct = MOCK_PRODUCTS.find((p) => p.id === id)
+    const mockProduct = MOCK_PRODUCTS.find((p) => p.id === id);
     return {
       data: mockProduct,
       usedMockData: true,
-    }
+    };
   }
 
-  return apiResult
+  return apiResult;
 }
 
 // Search products
@@ -390,16 +415,16 @@ export async function searchProducts(query: string, limit = 10) {
         code: "INVALID_INPUT",
         message: "Search query is required",
       },
-    }
+    };
   }
 
-  const q = query.toLowerCase()
+  const q = query.toLowerCase();
   const results = MOCK_PRODUCTS.filter(
     (p) =>
       p.name.toLowerCase().includes(q) ||
       p.description.toLowerCase().includes(q) ||
-      p.tags?.some((tag) => tag.toLowerCase().includes(q)),
-  ).slice(0, limit)
+      p.tags?.some((tag) => tag.toLowerCase().includes(q))
+  ).slice(0, limit);
 
   return {
     data: {
@@ -409,32 +434,36 @@ export async function searchProducts(query: string, limit = 10) {
       limit,
       hasMore: false,
     },
-  }
+  };
 }
 
 // Get all categories
 export async function getCategories() {
   // Try legacy compat route first, then API route, then fallback to mock data.
-  const tryEndpoints = ['/catalog/categories', '/api/catalog/categories']
+  const tryEndpoints = ["/catalog/categories", "/api/catalog/categories"];
   for (const ep of tryEndpoints) {
-    const res = await fetchFromAPI<any[]>(ep)
+    const res = await fetchFromAPI<any[]>(ep);
     if (res.data) {
       const categories = res.data.map((c: any) => ({
         id: c.id,
         name: c.name,
-        slug: c.slug ?? (typeof c.name === 'string' ? c.name.toLowerCase().replace(/\s+/g, '-') : c.id),
+        slug:
+          c.slug ??
+          (typeof c.name === "string"
+            ? c.name.toLowerCase().replace(/\s+/g, "-")
+            : c.id),
         description: c.description,
         image: c.image,
         productCount: c.productCount ?? undefined,
-      }))
-      return { data: categories }
+      }));
+      return { data: categories };
     }
   }
 
   return {
     data: MOCK_CATEGORIES,
     usedMockData: true,
-  }
+  };
 }
 
 // Get single category by slug
@@ -445,33 +474,36 @@ export async function getCategoryBySlug(slug: string) {
         code: "INVALID_INPUT",
         message: "Category slug is required",
       },
-    }
+    };
   }
 
-  const category = MOCK_CATEGORIES.find((c) => c.slug === slug)
+  const category = MOCK_CATEGORIES.find((c) => c.slug === slug);
   return {
     data: category,
-  }
+  };
 }
 
 // Validate product stock
-export async function validateProductStock(productId: string, quantity: number) {
+export async function validateProductStock(
+  productId: string,
+  quantity: number
+) {
   if (!productId || !quantity || quantity < 1) {
     return {
       error: {
         code: "INVALID_INPUT",
         message: "Product ID and valid quantity are required",
       },
-    }
+    };
   }
 
-  const product = MOCK_PRODUCTS.find((p) => p.id === productId)
-  const available = product ? (product.stock || 0) >= quantity : false
+  const product = MOCK_PRODUCTS.find((p) => p.id === productId);
+  const available = product ? (product.stock || 0) >= quantity : false;
 
   return {
     data: {
       available,
       stock: product?.stock || 0,
     },
-  }
+  };
 }

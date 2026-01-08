@@ -31,7 +31,9 @@ function Slider({
     <SliderPrimitive.Root
       data-slot="slider"
       // Use the memoized stable references for value or defaultValue.
-      {...(Array.isArray(value) ? { value: _value } : { defaultValue: _defaultValue })}
+      {...(Array.isArray(value)
+        ? { value: _value }
+        : { defaultValue: _defaultValue })}
       min={min}
       max={max}
       className={cn(

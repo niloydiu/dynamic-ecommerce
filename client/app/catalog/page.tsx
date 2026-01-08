@@ -9,7 +9,10 @@ import { ProductGrid } from "@/modules/catalog/components/product-grid";
 import { SortDropdown } from "@/modules/catalog/components/sort-dropdown";
 import { SearchBar } from "@/modules/catalog/components/search-bar";
 // Fetch categories directly from backend to ensure client-side filtering works
-const CATEGORIES_ENDPOINT = typeof window !== "undefined" ? "http://127.0.0.1:4000/catalog/categories" : undefined;
+const CATEGORIES_ENDPOINT =
+  typeof window !== "undefined"
+    ? "http://127.0.0.1:4000/catalog/categories"
+    : undefined;
 import { Button } from "@/components/ui/button";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import type { CatalogFilters } from "@/modules/catalog/types";
@@ -35,12 +38,42 @@ export default function CatalogPage() {
   // Load categories on mount
   useEffect(() => {
     const FALLBACK_CATEGORIES = [
-      { id: "1", name: "Electronics", slug: "electronics", description: "Tech gadgets and devices", productCount: 6 },
-      { id: "2", name: "Furniture", slug: "furniture", description: "Office and home furniture", productCount: 1 },
-      { id: "3", name: "Accessories", slug: "accessories", description: "Tech accessories and add-ons", productCount: 4 },
-      { id: "4", name: "Lighting", slug: "lighting", description: "Desk and ambient lighting", productCount: 1 },
-      { id: "5", name: "Office", slug: "office", description: "Office supplies and organizers", productCount: 1 },
-    ]
+      {
+        id: "1",
+        name: "Electronics",
+        slug: "electronics",
+        description: "Tech gadgets and devices",
+        productCount: 6,
+      },
+      {
+        id: "2",
+        name: "Furniture",
+        slug: "furniture",
+        description: "Office and home furniture",
+        productCount: 1,
+      },
+      {
+        id: "3",
+        name: "Accessories",
+        slug: "accessories",
+        description: "Tech accessories and add-ons",
+        productCount: 4,
+      },
+      {
+        id: "4",
+        name: "Lighting",
+        slug: "lighting",
+        description: "Desk and ambient lighting",
+        productCount: 1,
+      },
+      {
+        id: "5",
+        name: "Office",
+        slug: "office",
+        description: "Office supplies and organizers",
+        productCount: 1,
+      },
+    ];
     async function loadCategories() {
       try {
         if (CATEGORIES_ENDPOINT) {
@@ -48,7 +81,14 @@ export default function CatalogPage() {
           if (res.ok) {
             const data = await res.json();
             setCategories(
-              data.map((c: any) => ({ id: c.id, name: c.name, slug: c.slug ?? (c.name || c.id).toLowerCase().replace(/\s+/g, "-"), description: c.description, productCount: c.productCount }))
+              data.map((c: any) => ({
+                id: c.id,
+                name: c.name,
+                slug:
+                  c.slug ?? (c.name || c.id).toLowerCase().replace(/\s+/g, "-"),
+                description: c.description,
+                productCount: c.productCount,
+              }))
             );
             setIsLoadingCategories(false);
             return;
@@ -60,7 +100,9 @@ export default function CatalogPage() {
 
       // Fallback to server-side helper
       try {
-        const result = await (await import("@/modules/catalog/actions.server")).getCategories();
+        const result = await (
+          await import("@/modules/catalog/actions.server")
+        ).getCategories();
         if (result?.data) setCategories(result.data as any);
       } catch (e) {
         // ignore
@@ -73,11 +115,11 @@ export default function CatalogPage() {
         // (we don't import the store here to keep this component simple)
         setCategories((prev: any) => {
           try {
-            if (prev && Array.isArray(prev) && prev.length > 0) return prev
+            if (prev && Array.isArray(prev) && prev.length > 0) return prev;
           } catch {}
-          return FALLBACK_CATEGORIES as any
-        })
-      }, 0)
+          return FALLBACK_CATEGORIES as any;
+        });
+      }, 0);
       setIsLoadingCategories(false);
     }
     loadCategories();
@@ -94,35 +136,63 @@ export default function CatalogPage() {
     if (categoryParam !== filters.category) {
       // For virtual categories, clear price/search bounds so mock data is visible
       if (categoryParam === "new") {
-        updateFilters({ category: categoryParam, page: 1, minPrice: undefined, maxPrice: undefined, search: undefined, sortBy: "newest" });
+        updateFilters({
+          category: categoryParam,
+          page: 1,
+          minPrice: undefined,
+          maxPrice: undefined,
+          search: undefined,
+          sortBy: "newest",
+        });
       } else if (categoryParam === "sale") {
-        updateFilters({ category: categoryParam, page: 1, minPrice: undefined, maxPrice: undefined, search: undefined });
+        updateFilters({
+          category: categoryParam,
+          page: 1,
+          minPrice: undefined,
+          maxPrice: undefined,
+          search: undefined,
+        });
       } else {
         updateFilters({ category: categoryParam, page: 1 });
       }
     }
   }, [searchParams, filters.category, updateFilters]);
 
-  const handleCategoryChange = useCallback((category: string | undefined) => {
-    updateFilters({ category, page: 1 });
-  }, [updateFilters]);
+  const handleCategoryChange = useCallback(
+    (category: string | undefined) => {
+      updateFilters({ category, page: 1 });
+    },
+    [updateFilters]
+  );
 
-  const handlePriceChange = useCallback((range: [number, number]) => {
-    updateFilters({ minPrice: range[0], maxPrice: range[1], page: 1 });
-  }, [updateFilters]);
+  const handlePriceChange = useCallback(
+    (range: [number, number]) => {
+      updateFilters({ minPrice: range[0], maxPrice: range[1], page: 1 });
+    },
+    [updateFilters]
+  );
 
-  const handleSortChange = useCallback((sortBy: CatalogFilters["sortBy"]) => {
-    updateFilters({ sortBy });
-  }, [updateFilters]);
+  const handleSortChange = useCallback(
+    (sortBy: CatalogFilters["sortBy"]) => {
+      updateFilters({ sortBy });
+    },
+    [updateFilters]
+  );
 
-  const handleSearch = useCallback((query: string) => {
-    updateFilters({ search: query, page: 1 });
-  }, [updateFilters]);
+  const handleSearch = useCallback(
+    (query: string) => {
+      updateFilters({ search: query, page: 1 });
+    },
+    [updateFilters]
+  );
 
-  const handlePageChange = useCallback((newPage: number) => {
-    updateFilters({ page: newPage });
-    window.scrollTo({ top: 0, behavior: "smooth" });
-  }, [updateFilters]);
+  const handlePageChange = useCallback(
+    (newPage: number) => {
+      updateFilters({ page: newPage });
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    },
+    [updateFilters]
+  );
 
   const handleReset = useCallback(() => {
     resetFilters();
@@ -133,10 +203,10 @@ export default function CatalogPage() {
   const isEmpty = !isLoading && products.length === 0;
 
   // Memoize priceRange array to prevent unnecessary re-renders in children
-  const priceRange = useMemo<[number, number]>(() => [
-    filters.minPrice ?? 0,
-    filters.maxPrice ?? 1000
-  ], [filters.minPrice, filters.maxPrice]);
+  const priceRange = useMemo<[number, number]>(
+    () => [filters.minPrice ?? 0, filters.maxPrice ?? 1000],
+    [filters.minPrice, filters.maxPrice]
+  );
 
   return (
     <div className="flex-1 bg-background">

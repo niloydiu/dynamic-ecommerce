@@ -31,11 +31,11 @@ export class CatalogService {
     if (AppDataSource && AppDataSource.options.type === "sqlite") {
       let items = await this.productRepo.find({ where: { active: true } });
       const categories = await this.categoryRepo.find();
-      const catMap = new Map(categories.map(c => [c.id, c.slug])); // USE SLUG FOR LOGIC
+      const catMap = new Map(categories.map((c) => [c.id, c.slug])); // USE SLUG FOR LOGIC
 
       if (opts.categoryId)
         items = items.filter((i) => i.category_id === opts.categoryId);
-      
+
       if (opts.search) {
         const q = opts.search.toLowerCase();
         items = items.filter(
@@ -61,9 +61,9 @@ export class CatalogService {
           return true;
         });
       }
-      return items.map(i => ({
-          ...i,
-          category: catMap.get(i.category_id) || "uncategorized"
+      return items.map((i) => ({
+        ...i,
+        category: catMap.get(i.category_id) || "uncategorized",
       }));
     }
 
@@ -77,25 +77,28 @@ export class CatalogService {
         "p.description as description",
         "p.sku as sku",
         "p.price as price",
-        "p.originalPrice as \"originalPrice\"",
+        'p.originalPrice as "originalPrice"',
         "p.image as image",
         "p.stock as stock",
         "p.rating as rating",
-        "p.reviewCount as \"reviewCount\"",
+        'p.reviewCount as "reviewCount"',
         "p.tags as tags",
         "p.attributes as attributes",
         "c.slug as category",
-        "p.active as active"
+        "p.active as active",
       ])
       .where("p.active = true");
 
     if (opts.categoryId)
       qb.andWhere("p.category_id = :cid", { cid: opts.categoryId });
-    
+
     if (opts.search) {
-      qb.andWhere("(LOWER(p.name) LIKE :q OR LOWER(p.description) LIKE :q OR LOWER(p.sku) LIKE :q)", {
-        q: `%${opts.search.toLowerCase()}%`,
-      });
+      qb.andWhere(
+        "(LOWER(p.name) LIKE :q OR LOWER(p.description) LIKE :q OR LOWER(p.sku) LIKE :q)",
+        {
+          q: `%${opts.search.toLowerCase()}%`,
+        }
+      );
     }
 
     if (opts.filters && Object.keys(opts.filters).length) {
@@ -104,12 +107,15 @@ export class CatalogService {
 
     const raw = await qb.getRawMany();
     // Transform numeric strings back to numbers for price etc if needed, though most drivers handle it.
-    return raw.map(r => ({
-        ...r,
-        price: Number(r.price),
-        originalPrice: r.originalPrice ? Number(r.originalPrice) : null,
-        tags: typeof r.tags === 'string' ? JSON.parse(r.tags) : r.tags,
-        attributes: typeof r.attributes === 'string' ? JSON.parse(r.attributes) : r.attributes,
+    return raw.map((r) => ({
+      ...r,
+      price: Number(r.price),
+      originalPrice: r.originalPrice ? Number(r.originalPrice) : null,
+      tags: typeof r.tags === "string" ? JSON.parse(r.tags) : r.tags,
+      attributes:
+        typeof r.attributes === "string"
+          ? JSON.parse(r.attributes)
+          : r.attributes,
     }));
   }
 
@@ -148,7 +154,8 @@ export class CatalogService {
         price: 49.99,
         originalPrice: 69.99,
         stock: 50,
-        image: "https://images.unsplash.com/photo-1515372039744-b8f02a3ae446?auto=format&fit=crop&w=800&q=80",
+        image:
+          "https://images.unsplash.com/photo-1515372039744-b8f02a3ae446?auto=format&fit=crop&w=800&q=80",
         rating: 4.5,
         reviewCount: 12,
         tags: ["dress", "summer", "floral"],
@@ -157,12 +164,14 @@ export class CatalogService {
       const p2 = this.productRepo.create({
         name: "Classic Steel Watch",
         slug: "classic-steel-watch",
-        description: "Timeless analog watch with a durable stainless steel band.",
+        description:
+          "Timeless analog watch with a durable stainless steel band.",
         sku: "WATCH-001",
         category_id: watchCat.id,
         price: 199.99,
         stock: 10,
-        image: "https://images.unsplash.com/photo-152327533bc68-675097457351?auto=format&fit=crop&w=800&q=80",
+        image:
+          "https://images.unsplash.com/photo-152327533bc68-675097457351?auto=format&fit=crop&w=800&q=80",
         rating: 4.8,
         reviewCount: 45,
         tags: ["watch", "classic", "steel"],

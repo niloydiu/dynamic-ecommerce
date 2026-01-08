@@ -31,7 +31,11 @@ export class CatalogCompatController {
         f = {};
       }
     }
-    const products = await this.svc.listProducts({ categoryId, search, filters: f });
+    const products = await this.svc.listProducts({
+      categoryId,
+      search,
+      filters: f,
+    });
     return {
       products,
       total: products.length,

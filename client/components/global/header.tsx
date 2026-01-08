@@ -1,22 +1,22 @@
-"use client"
+"use client";
 
-import { useState, useEffect } from "react"
-import Link from "next/link"
-import { ShoppingCart, Search, Menu, X, Moon, Sun } from "lucide-react"
-import { Button } from "@/components/ui/button"
-import { useTheme } from "next-themes"
-import { useCart } from "@/modules/cart/hooks"
+import { useState, useEffect } from "react";
+import Link from "next/link";
+import { ShoppingCart, Search, Menu, X, Moon, Sun } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { useTheme } from "next-themes";
+import { useCart } from "@/modules/cart/hooks";
 
 export default function Header() {
-  const [isMenuOpen, setIsMenuOpen] = useState(false)
-  const { theme, setTheme } = useTheme()
-  const { itemCount } = useCart()
-  const [mounted, setMounted] = useState(false)
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const { theme, setTheme } = useTheme();
+  const { itemCount } = useCart();
+  const [mounted, setMounted] = useState(false);
 
   // Prevent hydration mismatch: don't render theme-dependent icon until mounted
   useEffect(() => {
-    setMounted(true)
-  }, [])
+    setMounted(true);
+  }, []);
 
   return (
     <header className="sticky top-0 z-50 w-full border-b border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
@@ -32,13 +32,22 @@ export default function Header() {
 
           {/* Desktop Navigation */}
           <nav className="hidden md:flex items-center gap-8">
-            <Link href="/catalog" className="text-sm font-medium hover:text-primary transition-colors">
+            <Link
+              href="/catalog"
+              className="text-sm font-medium hover:text-primary transition-colors"
+            >
               Shop
             </Link>
-            <Link href="/catalog?category=new" className="text-sm font-medium hover:text-primary transition-colors">
+            <Link
+              href="/catalog?category=new"
+              className="text-sm font-medium hover:text-primary transition-colors"
+            >
               New Arrivals
             </Link>
-            <Link href="/catalog?category=sale" className="text-sm font-medium hover:text-primary transition-colors">
+            <Link
+              href="/catalog?category=sale"
+              className="text-sm font-medium hover:text-primary transition-colors"
+            >
               Sale
             </Link>
           </nav>
@@ -76,7 +85,12 @@ export default function Header() {
 
             {/* Cart */}
             <Link href="/cart">
-              <Button variant="ghost" size="icon" aria-label="Shopping cart" className="relative">
+              <Button
+                variant="ghost"
+                size="icon"
+                aria-label="Shopping cart"
+                className="relative"
+              >
                 <ShoppingCart className="w-4 h-4" />
                 {itemCount > 0 && (
                   <span className="absolute top-1 right-1 w-4 h-4 bg-destructive text-destructive-foreground text-xs flex items-center justify-center rounded-full font-semibold">
@@ -101,7 +115,11 @@ export default function Header() {
               onClick={() => setIsMenuOpen(!isMenuOpen)}
               aria-label="Toggle menu"
             >
-              {isMenuOpen ? <X className="w-4 h-4" /> : <Menu className="w-4 h-4" />}
+              {isMenuOpen ? (
+                <X className="w-4 h-4" />
+              ) : (
+                <Menu className="w-4 h-4" />
+              )}
             </Button>
           </div>
         </div>
@@ -109,7 +127,10 @@ export default function Header() {
         {/* Mobile Menu */}
         {isMenuOpen && (
           <nav className="md:hidden mt-4 py-4 border-t border-border space-y-2">
-            <Link href="/catalog" className="block py-2 text-sm font-medium hover:text-primary transition-colors">
+            <Link
+              href="/catalog"
+              className="block py-2 text-sm font-medium hover:text-primary transition-colors"
+            >
               Shop
             </Link>
             <Link
@@ -138,5 +159,5 @@ export default function Header() {
         )}
       </div>
     </header>
-  )
+  );
 }
